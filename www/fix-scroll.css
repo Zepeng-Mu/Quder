@@ -1,0 +1,5 @@
+/* Fix rhandsontable capturing page scroll events */
+.handsontable .wtHolder {
+  overflow: visible !important;
+  height: auto !important;
+}
