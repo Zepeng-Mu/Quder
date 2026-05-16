@@ -4,33 +4,57 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Quder** is an R Shiny web application for Qubit quantification. It fits a standard curve from plate reader data and predicts sample DNA/RNA concentrations for pooling calculations.
+**Quder** is a web application for Qubit quantification. It fits a standard curve from plate reader data and predicts sample DNA/RNA concentrations for pooling calculations.
 
-## Running the App
+Two versions exist:
+- **R Shiny** (`app.R`) — original, requires an R server
+- **Static HTML/JS** (`index.html` + `js/`) — zero-dependency, hostable on GitHub Pages
 
-```r
-# From project root
-shiny::runApp(".", port = 8765)
+## Running the Static App
 
-# Or via Rscript
-Rscript app.R
+Open `index.html` in a browser, or serve with any static file server:
+
+```bash
+python3 -m http.server 8765
+# Then open http://localhost:8765
 ```
 
-No formal build system, dependency lockfile, or CI exists. Dependencies are declared inline via `library()` calls.
+No build step. All dependencies loaded via CDN.
+
+## Running the R App
+
+```r
+shiny::runApp(".", port = 8765)
+```
 
 ## Key Dependencies
 
-`shiny`, `bslib` (flatly theme), `tidyverse`, `rhandsontable`, `plotly`, `htmltools`
+### Static App (CDN)
+`Bootstrap 5.3` (Bootswatch Flatly), `AG Grid Community` (editable tables), `Plotly.js` (charts), `Papa Parse` (CSV parsing)
+
+### R App
+`shiny`, `bslib`, `tidyverse`, `rhandsontable`, `plotly`, `htmltools`
 
 ## Architecture
 
-Standard Shiny two-file pattern with extracted helpers:
+### Static App
 
-- **`app.R`** — Entry point. Defines UI (`bslib::page_sidebar` with three cards: standard curve table, plot, sample results) and all server logic (model fitting, reactive predictions, file upload, CSV export, sample aggregation).
-- **`R/regression.R`** — `fit_standard_curve()`, `predict_samples()`, `summarize_samples()`. Core math: linear model `lm(known_con ~ value)` with optional highest-concentration exclusion and dilution correction.
-- **`R/validation.R`** — `r2_quality()`, `validate_numeric_input()`, `check_standard_count()`. Input validation and R-squared quality mapping.
-- **`R/parse_plate.R`** — `parse_sample_csv()` with auto separator detection (comma/tab/semicolon). Handles raw plate reader CSV/TXT import into tidy tibbles.
-- **`Qubit.R`** — Original standalone prototype, not used by the app.
+- **`index.html`** — Full page with CDN links and Bootstrap layout
+- **`js/app.js`** — Main wiring: event handlers, state management, UI updates
+- **`js/math.js`** — `fitStandardCurve()`, `predictSamples()`, `summarizeSamples()`, `r2Quality()`, `checkStandardCount()`. Ports of R regression/validation logic.
+- **`js/state.js`** — Simple pub/sub state store (replaces Shiny `reactiveVal`)
+- **`js/tables.js`** — AG Grid table creation for standards and samples
+- **`js/charts.js`** — `renderCurvePlot()`, `renderResidualPlot()` via Plotly.js
+- **`js/io.js`** — `parseCSVFile()`, `exportResultsCSV()`, `loadExampleData()` via Papa Parse
+- **`css/custom.css`** — Styles beyond Flatly defaults
+
+### R App
+
+- **`app.R`** — Entry point. Defines UI and server logic.
+- **`R/regression.R`** — `fit_standard_curve()`, `predict_samples()`, `summarize_samples()`.
+- **`R/validation.R`** — `r2_quality()`, `validate_numeric_input()`, `check_standard_count()`.
+- **`R/parse_plate.R`** — `parse_sample_csv()` with auto separator detection.
+- **`Qubit.R`** — Original standalone prototype, not used by either app.
 
 ## Data Files
 
@@ -39,7 +63,7 @@ Standard Shiny two-file pattern with extracted helpers:
 
 ## Conventions
 
-- No testing infrastructure (no `testthat`, no CI).
+- No testing infrastructure.
 - No linting or formatting config.
-- UI uses `rhandsontable` for editable in-app spreadsheets and `plotly` for interactive plots.
-- Helper modules in `R/` are sourced via `source()` in `app.R`.
+- Static app uses ES modules (`import`/`export`) with `<script type="module">`.
+- CDN libraries loaded as UMD globals; app code uses ES modules.

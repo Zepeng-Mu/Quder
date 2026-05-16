@@ -1,0 +1,87 @@
+/* Fix AG Grid container height */
+.ag-theme-alpine {
+  width: 100% !important;
+}
+
+/* Notification toasts */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1080;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toast-notification {
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.3s, transform 0.3s;
+  max-width: 360px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.toast-notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-notification.success { background: #28a745; }
+.toast-notification.warning { background: #ffc107; color: #333; }
+.toast-notification.danger  { background: #dc3545; }
+.toast-notification.info    { background: #17a2b8; }
+
+/* R-squared badge */
+.r2-badge {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+}
+
+/* Fit params text */
+.fit-params {
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* Status cell colors */
+.status-ok          { color: #28a745; font-weight: 600; }
+.status-negative    { color: #dc3545; font-weight: 600; }
+.status-cannot-pool { color: #dc3545; font-weight: 600; }
+.status-too-dilute  { color: #ffc107; font-weight: 600; }
+.status-na          { color: #999; }
+
+/* Sample summary table */
+.sample-summary {
+  margin-top: 12px;
+}
+
+/* Card header button alignment */
+.card-header .d-flex {
+  align-items: center;
+}
+
+/* Plot containers */
+.curve-plot-container {
+  width: 100%;
+  min-height: 350px;
+}
+
+.residual-plot-container {
+  width: 100%;
+  min-height: 200px;
+}
+
+/* Responsive sidebar */
+@media (max-width: 768px) {
+  .sidebar-card {
+    margin-bottom: 1rem;
+  }
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qubit Quantification</title>
+
+  <!-- Bootstrap 5.3 + Bootswatch Flatly -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/flatly/bootstrap.min.css">
+
+  <!-- AG Grid Community -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/styles/ag-theme-alpine.css">
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/custom.css">
+</head>
+<body>
+
+  <!-- Notification toasts -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- ── Sidebar ────────────────────────────────────────── -->
+      <div class="col-md-3 col-lg-2 sidebar-card mb-3 mb-md-0">
+        <h4 class="mt-3 mb-3">Settings</h4>
+
+        <!-- Model Settings -->
+        <div class="card mb-3">
+          <div class="card-header">Model Settings</div>
+          <div class="card-body">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="exclude_highest" checked>
+              <label class="form-check-label" for="exclude_highest">Exclude highest concentration from fit</label>
+            </div>
+            <div class="mb-2">
+              <label for="std_dilution" class="form-label">Standard dilution factor</label>
+              <input type="number" class="form-control" id="std_dilution" value="5" min="1" step="1">
+            </div>
+            <div class="mb-2">
+              <label for="smp_dilution" class="form-label">Sample dilution factor</label>
+              <input type="number" class="form-control" id="smp_dilution" value="2" min="1" step="1">
+            </div>
+            <div class="mb-2">
+              <label for="target_mass" class="form-label">Target pooling mass (ng)</label>
+              <input type="number" class="form-control" id="target_mass" value="50" min="1" step="10">
+            </div>
+          </div>
+        </div>
+
+        <!-- Import -->
+        <div class="card mb-3">
+          <div class="card-header">Import</div>
+          <div class="card-body">
+            <div class="mb-2">
+              <label for="upload_samples" class="form-label">Upload sample readings (CSV/TXT)</label>
+              <input type="file" class="form-control" id="upload_samples" accept=".csv,.tsv,.txt">
+            </div>
+            <button class="btn btn-outline-secondary btn-sm w-100" id="load_example">Load Example Data</button>
+          </div>
+        </div>
+
+        <!-- Fit Quality -->
+        <div class="card mb-3">
+          <div class="card-header">Fit Quality</div>
+          <div class="card-body">
+            <div id="r2_badge">
+              <span style="color: #999;">No model fitted yet</span>
+            </div>
+            <div id="fit_params" class="fit-params"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Main area ──────────────────────────────────────── -->
+      <div class="col-md-9 col-lg-10">
+
+        <!-- Standard Curve Data -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <span>Standard Curve Data</span>
+              <button class="btn btn-primary btn-sm" id="fit_model">Fit Standard Curve</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="std_table" class="ag-theme-alpine" style="height: 350px;"></div>
+          </div>
+        </div>
+
+        <!-- Standard Curve Plot -->
+        <div class="card mb-3">
+          <div class="card-header">Standard Curve Plot</div>
+          <div class="card-body">
+            <div id="curve_plot" class="curve-plot-container"></div>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" id="show_residuals">
+              <label class="form-check-label" for="show_residuals">Show residual plot</label>
+            </div>
+            <div id="residual_plot_container" style="display: none;">
+              <div id="residual_plot" class="residual-plot-container"></div>
+            </div>
+            <div id="fit_warnings"></div>
+          </div>
+        </div>
+
+        <!-- Sample Results -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <span>Sample Results</span>
+              <div>
+                <button class="btn btn-outline-primary btn-sm me-1" id="add_sample">Add Sample</button>
+                <button class="btn btn-outline-success btn-sm" id="export_csv">Export CSV</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="smp_table" class="ag-theme-alpine" style="height: 300px;"></div>
+            <div id="sample_summary" class="sample-summary"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CDN Libraries (UMD globals) ───────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/dist/ag-grid-community.min.noStyle.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <!-- App modules -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

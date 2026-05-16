@@ -23,26 +23,6 @@ r2_quality <- function(r_squared) {
   }
 }
 
-#' Validate numeric input vector
-#'
-#' @param values Character vector of user input
-#'
-#' @return A list with: valid (numeric vector with NAs for bad values),
-#'   warnings (character vector of warning messages)
-validate_numeric_input <- function(values) {
-  warnings <- character()
-  valid <- suppressWarnings(as.numeric(values))
-
-  bad_idx <- which(is.na(valid) & !is.na(values) & values != "")
-  if (length(bad_idx) > 0) {
-    warnings <- c(warnings,
-      sprintf("Non-numeric value at position %s: \"%s\"",
-              bad_idx, values[bad_idx]))
-  }
-
-  list(valid = valid, warnings = warnings)
-}
-
 #' Check if a model fit has enough standards
 #'
 #' @param n_standards Integer, number of standards used in fit

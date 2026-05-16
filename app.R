@@ -3,7 +3,6 @@ library(bslib)
 library(tidyverse)
 library(rhandsontable)
 library(plotly)
-library(htmltools)
 
 source("R/regression.R")
 source("R/validation.R")
@@ -105,20 +104,26 @@ ui <- page_sidebar(
 
 server <- function(input, output, session) {
 
+  # Helper: build a sample data.frame from a vector of readings
+  make_smp_df <- function(readings) {
+    n <- length(readings)
+    data.frame(
+      sample_name = paste0("Sample_", seq_len(n)),
+      reading = readings,
+      predicted_conc = rep(NA_real_, n),
+      pool_volume = rep(NA_real_, n),
+      status = rep("N/A", n),
+      stringsAsFactors = FALSE
+    )
+  }
+
   # Reactive values
   model_fit <- reactiveVal(NULL)
   std_data <- reactiveVal(data.frame(
     concentration = DEFAULT_CONC,
     reading = rep(NA_real_, 8)
   ))
-  smp_data <- reactiveVal(data.frame(
-    sample_name = paste0("Sample_", 1:6),
-    reading = rep(NA_real_, 6),
-    predicted_conc = rep(NA_real_, 6),
-    pool_volume = rep(NA_real_, 6),
-    status = rep("N/A", 6),
-    stringsAsFactors = FALSE
-  ))
+  smp_data <- reactiveVal(make_smp_df(rep(NA_real_, 6)))
 
   # ── Standards table ──
 
@@ -131,9 +136,10 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$std_table, {
-    tryCatch({
-      std_data(hot_to_r(input$std_table))
-    }, error = function(e) NULL)
+    tryCatch(
+      std_data(hot_to_r(input$std_table)),
+      error = function(e) message("std_table parse error: ", e$message)
+    )
   })
 
   # ── Samples table ──
@@ -161,21 +167,14 @@ server <- function(input, output, session) {
         new_data$status <- preds$status
       }
       smp_data(new_data)
-    }, error = function(e) NULL)
+    }, error = function(e) message("smp_table parse error: ", e$message))
   })
 
   # Add sample row
   observeEvent(input$add_sample, {
-    df <- isolate(smp_data())
-    n <- nrow(df)
-    new_row <- data.frame(
-      sample_name = paste0("Sample_", n + 1),
-      reading = NA_real_,
-      predicted_conc = NA_real_,
-      pool_volume = NA_real_,
-      status = "N/A",
-      stringsAsFactors = FALSE
-    )
+    df <- smp_data()
+    new_row <- make_smp_df(NA_real_)
+    new_row$sample_name <- paste0("Sample_", nrow(df) + 1)
     smp_data(rbind(df, new_row))
   })
 
@@ -397,26 +396,12 @@ server <- function(input, output, session) {
   # ── Load example data ──
 
   observeEvent(input$load_example, {
-    # Load standard readings from Std.csv
     std_raw <- scan("Std.csv", what = numeric(), sep = ",", quiet = TRUE)
-    std_data(data.frame(
-      concentration = DEFAULT_CONC,
-      reading = std_raw
-    ))
+    std_data(data.frame(concentration = DEFAULT_CONC, reading = std_raw))
 
-    # Load sample readings from Smp.csv
     smp_raw <- parse_sample_csv("Smp.csv")
     if (nrow(smp_raw$data) > 0) {
-      readings <- smp_raw$data$raw_value
-      n <- length(readings)
-      smp_data(data.frame(
-        sample_name = paste0("Sample_", seq_len(n)),
-        reading = readings,
-        predicted_conc = rep(NA_real_, n),
-        pool_volume = rep(NA_real_, n),
-        status = rep("N/A", n),
-        stringsAsFactors = FALSE
-      ))
+      smp_data(make_smp_df(smp_raw$data$raw_value))
     }
 
     showNotification("Example data loaded. Click 'Fit Standard Curve' to analyze.",
@@ -429,24 +414,13 @@ server <- function(input, output, session) {
     req(input$upload_samples)
     parsed <- parse_sample_csv(input$upload_samples$datapath)
 
-    if (length(parsed$warnings) > 0) {
-      for (w in parsed$warnings) {
-        showNotification(w, type = "warning")
-      }
+    for (w in parsed$warnings) {
+      showNotification(w, type = "warning")
     }
 
     if (nrow(parsed$data) > 0) {
-      readings <- parsed$data$raw_value
-      n <- length(readings)
-      smp_data(data.frame(
-        sample_name = paste0("Sample_", seq_len(n)),
-        reading = readings,
-        predicted_conc = rep(NA_real_, n),
-        pool_volume = rep(NA_real_, n),
-        status = rep("N/A", n),
-        stringsAsFactors = FALSE
-      ))
-      showNotification(sprintf("Loaded %d sample readings.", n),
+      smp_data(make_smp_df(parsed$data$raw_value))
+      showNotification(sprintf("Loaded %d sample readings.", nrow(parsed$data)),
                        type = "message")
     }
   })
