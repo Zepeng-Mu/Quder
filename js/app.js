@@ -304,6 +304,22 @@ document.getElementById('show_residuals').addEventListener('change', (e) => {
   }
 });
 
+// ── Tab Changes (Resize components) ────────────────────────────────────────
+
+const calculatorTab = document.getElementById('calculator-tab');
+if (calculatorTab) {
+  calculatorTab.addEventListener('shown.bs.tab', () => {
+    stdGridApi.sizeColumnsToFit();
+    smpGridApi.sizeColumnsToFit();
+    if (state.get('modelFit')) {
+      const curvePlot = document.getElementById('curve_plot');
+      if (curvePlot && curvePlot.data) Plotly.Plots.resize(curvePlot);
+      const residualPlot = document.getElementById('residual_plot');
+      if (residualPlot && residualPlot.data) Plotly.Plots.resize(residualPlot);
+    }
+  });
+}
+
 // ── Sidebar Settings Changes ───────────────────────────────────────────────
 
 // When dilution factors or target mass change, re-predict if model exists

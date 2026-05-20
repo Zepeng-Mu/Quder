@@ -85,3 +85,13 @@
     margin-bottom: 1rem;
   }
 }
+
+/* Custom width override for sidebar and main area */
+@media (min-width: 768px) {
+  .calculator-sidebar {
+    width: 25% !important;
+  }
+  .calculator-main {
+    width: 75% !important;
+  }
+}
