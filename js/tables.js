@@ -1,6 +1,10 @@
 // AG Grid table creation and management
 // Ports rhandsontable behavior from app.R
 
+// Monotonically increasing counter for stable sample row IDs
+let _smpRowIdCounter = 0;
+export function nextSmpRowId() { return ++_smpRowIdCounter; }
+
 /**
  * Create the standards table (8 fixed rows).
  * Columns: concentration (readOnly, 6 decimal), reading (editable, integer)
@@ -98,6 +102,7 @@ export function createSmpTable(containerId, onCellChange) {
     suppressRowHoverHighlight: true,
     rowSelection: 'single',
     onCellValueChanged: onCellChange,
+    getRowId: p => String(p.data._id),
   };
 
   const container = document.getElementById(containerId);
@@ -111,6 +116,7 @@ export function createSmpTable(containerId, onCellChange) {
 export function addSampleRow(gridApi) {
   const rowCount = gridApi.getDisplayedRowCount();
   const newRow = {
+    _id: nextSmpRowId(),
     sampleName: `Sample_${rowCount + 1}`,
     reading: null,
     predictedConc: null,
@@ -124,7 +130,7 @@ export function addSampleRow(gridApi) {
  * Bulk update sample table data (after prediction).
  */
 export function updateSmpTableData(gridApi, data) {
-  gridApi.setGridOption('rowData', data);
+  gridApi.applyTransaction({ update: data });
 }
 
 /**

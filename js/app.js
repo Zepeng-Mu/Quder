@@ -3,7 +3,7 @@
 
 import { State } from './state.js';
 import { DEFAULT_CONC, fitStandardCurve, predictSamples, summarizeSamples, r2Quality, checkStandardCount } from './math.js';
-import { createStdTable, createSmpTable, addSampleRow, updateSmpTableData, getGridData } from './tables.js';
+import { createStdTable, createSmpTable, addSampleRow, updateSmpTableData, getGridData, nextSmpRowId } from './tables.js';
 import { renderCurvePlot, renderResidualPlot } from './charts.js';
 import { parseCSVFile, exportResultsCSV, loadExampleData } from './io.js';
 
@@ -29,6 +29,7 @@ function showToast(message, type = 'info') {
 const state = new State({
   stdData: DEFAULT_CONC.map(c => ({ concentration: c, reading: null })),
   smpData: Array.from({ length: 6 }, (_, i) => ({
+    _id: nextSmpRowId(),
     sampleName: `Sample_${i + 1}`,
     reading: null,
     predictedConc: null,
@@ -247,6 +248,7 @@ document.getElementById('load_example').addEventListener('click', async () => {
     stdGridApi.setGridOption('rowData', stdData);
 
     const smpData = smpReadings.map((r, i) => ({
+      _id: nextSmpRowId(),
       sampleName: `Sample_${i + 1}`,
       reading: r,
       predictedConc: null,
@@ -274,6 +276,7 @@ document.getElementById('upload_samples').addEventListener('change', async (e) =
 
     if (data.length > 0) {
       const smpData = data.map((r, i) => ({
+        _id: nextSmpRowId(),
         sampleName: `Sample_${i + 1}`,
         reading: r,
         predictedConc: null,
