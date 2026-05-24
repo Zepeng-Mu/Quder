@@ -53,11 +53,11 @@ function getSettings() {
 function updateR2Badge(modelFit) {
   const el = document.getElementById('r2_badge');
   if (!modelFit) {
-    el.innerHTML = '<span style="color: #999;">No model fitted yet</span>';
+    el.innerHTML = '<span class="text-muted-custom">No model fitted yet</span>';
     return;
   }
   const q = r2Quality(modelFit.rSquared);
-  el.innerHTML = `<div class="r2-badge" style="background: ${q.color};">${q.label}</div>`;
+  el.innerHTML = `<div class="r2-badge r2-${q.level}">${q.label}</div>`;
 }
 
 function updateFitParams(modelFit) {

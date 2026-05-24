@@ -30,7 +30,7 @@ export function renderCurvePlot(containerId, modelFit) {
       hoverinfo: 'text',
       mode: 'markers',
       type: 'scatter',
-      marker: { color: '#4a90d9', size: 10 },
+      marker: { color: '#DD614C', size: 10 },
       showlegend: false,
     },
     {
@@ -38,7 +38,7 @@ export function renderCurvePlot(containerId, modelFit) {
       y: [modelFit.intercept + modelFit.slope * xMin, modelFit.intercept + modelFit.slope * xMax],
       mode: 'lines',
       type: 'scatter',
-      line: { color: '#e74c3c', width: 2 },
+      line: { color: '#111827', width: 2 },
       showlegend: false,
       hoverinfo: 'skip',
     },
@@ -49,7 +49,7 @@ export function renderCurvePlot(containerId, modelFit) {
       x: 0.02, y: 0.98, xref: 'paper', yref: 'paper',
       text: `R² = ${modelFit.rSquared.toFixed(4)}`,
       showarrow: false,
-      font: { size: 14, color: '#333' },
+      font: { size: 14, color: '#111827', family: "'Darker Grotesque', sans-serif" },
     },
   ];
 
@@ -58,13 +58,16 @@ export function renderCurvePlot(containerId, modelFit) {
       x: 0.02, y: 0.90, xref: 'paper', yref: 'paper',
       text: '(highest conc excluded)',
       showarrow: false,
-      font: { size: 11, color: '#999' },
+      font: { size: 11, color: '#6B7280', family: "'Darker Grotesque', sans-serif" },
     });
   }
 
   const layout = {
-    xaxis: { title: 'Raw Reading (dilution-corrected)' },
-    yaxis: { title: 'Concentration (ng/uL)' },
+    font: { family: "'Darker Grotesque', sans-serif", size: 13, color: '#111827' },
+    xaxis: { title: 'Raw Reading (dilution-corrected)', gridcolor: '#E5E7EB' },
+    yaxis: { title: 'Concentration (ng/uL)', gridcolor: '#E5E7EB' },
+    plot_bgcolor: '#FFFFFF',
+    paper_bgcolor: '#FFFFFF',
     annotations,
     margin: { t: 30, r: 30 },
   };
@@ -90,7 +93,7 @@ export function renderResidualPlot(containerId, modelFit) {
       y: modelFit.residuals,
       mode: 'markers',
       type: 'scatter',
-      marker: { color: '#4a90d9', size: 8 },
+      marker: { color: '#DD614C', size: 8 },
       showlegend: false,
       hoverinfo: 'skip',
     },
@@ -99,15 +102,18 @@ export function renderResidualPlot(containerId, modelFit) {
       y: [0, 0],
       mode: 'lines',
       type: 'scatter',
-      line: { color: '#e74c3c', dash: 'dash' },
+      line: { color: '#9CA3AF', width: 1.5 },
       showlegend: false,
       hoverinfo: 'skip',
     },
   ];
 
   const layout = {
-    xaxis: { title: 'Fitted values' },
-    yaxis: { title: 'Residuals' },
+    font: { family: "'Darker Grotesque', sans-serif", size: 13, color: '#111827' },
+    xaxis: { title: 'Fitted values', gridcolor: '#E5E7EB' },
+    yaxis: { title: 'Residuals', gridcolor: '#E5E7EB' },
+    plot_bgcolor: '#FFFFFF',
+    paper_bgcolor: '#FFFFFF',
     margin: { t: 20, r: 30 },
   };
 
