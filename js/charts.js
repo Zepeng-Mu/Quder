@@ -18,6 +18,12 @@ export function renderCurvePlot(containerId, modelFit) {
   const yVals = std.map(d => d.knownCon);
   const hoverText = std.map(d => `Reading: ${Math.round(d.rawValue)}<br>Conc: ${d.knownCon.toFixed(4)} ng/uL`);
 
+  // Fitted values at each standard's x-position
+  const fittedY = xVals.map(x => modelFit.intercept + modelFit.slope * x);
+  const fittedHoverText = std.map((d, i) =>
+    `Fitted: ${fittedY[i].toFixed(4)} ng/uL<br>Reading: ${Math.round(d.rawValue)}`
+  );
+
   // Regression line
   const xMin = Math.min(...xVals);
   const xMax = Math.max(...xVals);
@@ -31,7 +37,8 @@ export function renderCurvePlot(containerId, modelFit) {
       mode: 'markers',
       type: 'scatter',
       marker: { color: '#DD614C', size: 10 },
-      showlegend: false,
+      name: 'Observed',
+      showlegend: true,
     },
     {
       x: [xMin, xMax],
@@ -39,8 +46,20 @@ export function renderCurvePlot(containerId, modelFit) {
       mode: 'lines',
       type: 'scatter',
       line: { color: '#111827', width: 2 },
-      showlegend: false,
+      name: 'Fitted line',
+      showlegend: true,
       hoverinfo: 'skip',
+    },
+    {
+      x: xVals,
+      y: fittedY,
+      text: fittedHoverText,
+      hoverinfo: 'text',
+      mode: 'markers',
+      type: 'scatter',
+      marker: { color: '#111827', size: 8, symbol: 'circle-open', line: { width: 2 } },
+      name: 'Fitted points',
+      showlegend: true,
     },
   ];
 
@@ -68,6 +87,7 @@ export function renderCurvePlot(containerId, modelFit) {
     yaxis: { title: 'Concentration (ng/uL)', gridcolor: '#E5E7EB' },
     plot_bgcolor: '#FFFFFF',
     paper_bgcolor: '#FFFFFF',
+    legend: { x: 0.65, y: 0.05, bgcolor: 'rgba(255,255,255,0.8)', bordercolor: '#E5E7EB', borderwidth: 1 },
     annotations,
     margin: { t: 30, r: 30 },
   };
