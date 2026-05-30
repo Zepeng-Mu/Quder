@@ -4,7 +4,7 @@
 /**
  * Render the standard curve scatter + regression line.
  */
-export function renderCurvePlot(containerId, modelFit) {
+export function renderCurvePlot(containerId, modelFit, sampleResults = []) {
   if (!modelFit) {
     Plotly.newPlot(containerId, [], {
       xaxis: { title: 'Raw Reading (dilution-corrected)' },
@@ -18,15 +18,19 @@ export function renderCurvePlot(containerId, modelFit) {
   const yVals = std.map(d => d.knownCon);
   const hoverText = std.map(d => `Reading: ${Math.round(d.rawValue)}<br>Conc: ${d.knownCon.toFixed(4)} ng/uL`);
 
-  // Fitted values at each standard's x-position
-  const fittedY = xVals.map(x => modelFit.intercept + modelFit.slope * x);
-  const fittedHoverText = std.map((d, i) =>
-    `Fitted: ${fittedY[i].toFixed(4)} ng/uL<br>Reading: ${Math.round(d.rawValue)}`
-  );
-
   // Regression line
   const xMin = Math.min(...xVals);
   const xMax = Math.max(...xVals);
+
+  // Sample results with valid predictions
+  const validSamples = (sampleResults || []).filter(
+    s => s.dilutionCorrected != null && s.predictedConc != null
+  );
+  const smpX = validSamples.map(s => s.dilutionCorrected);
+  const smpY = validSamples.map(s => s.predictedConc);
+  const smpHover = validSamples.map(s =>
+    `${s.sampleName}<br>Reading: ${s.dilutionCorrected.toFixed(2)}<br>Predicted: ${s.predictedConc.toFixed(4)} ng/uL`
+  );
 
   const data = [
     {
@@ -37,7 +41,7 @@ export function renderCurvePlot(containerId, modelFit) {
       mode: 'markers',
       type: 'scatter',
       marker: { color: '#DD614C', size: 10 },
-      name: 'Observed',
+      name: 'Standards',
       showlegend: true,
     },
     {
@@ -50,17 +54,17 @@ export function renderCurvePlot(containerId, modelFit) {
       showlegend: true,
       hoverinfo: 'skip',
     },
-    {
-      x: xVals,
-      y: fittedY,
-      text: fittedHoverText,
+    ...(smpX.length > 0 ? [{
+      x: smpX,
+      y: smpY,
+      text: smpHover,
       hoverinfo: 'text',
       mode: 'markers',
       type: 'scatter',
-      marker: { color: '#111827', size: 8, symbol: 'circle-open', line: { width: 2 } },
-      name: 'Fitted points',
+      marker: { color: '#2563EB', size: 8, symbol: 'diamond' },
+      name: 'Samples',
       showlegend: true,
-    },
+    }] : []),
   ];
 
   const annotations = [

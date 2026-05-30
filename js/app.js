@@ -122,8 +122,8 @@ function updateSampleSummary(smpData) {
     </table>`;
 }
 
-function updateCharts(modelFit) {
-  renderCurvePlot('curve_plot', modelFit);
+function updateCharts(modelFit, sampleResults) {
+  renderCurvePlot('curve_plot', modelFit, sampleResults);
   if (document.getElementById('show_residuals').checked) {
     renderResidualPlot('residual_plot', modelFit);
   }
@@ -152,6 +152,7 @@ function predictAndUpdateSamples(stdGridApi, smpGridApi) {
   state.set('smpData', updated);
   updateSmpTableData(smpGridApi, updated);
   updateSampleSummary(updated);
+  renderCurvePlot('curve_plot', state.get('modelFit'), updated);
 }
 
 // ── Initialize Tables ──────────────────────────────────────────────────────
@@ -204,7 +205,7 @@ document.getElementById('fit_model').addEventListener('click', () => {
   updateFitParams(mf);
   updateFitWarnings(mf);
   updateCharts(mf);
-  predictAndUpdateSamples(stdGridApi, smpGridApi);
+  predictAndUpdateSamples(stdGridApi, smpGridApi); // will re-render curve with sample points
   showToast('Model fitted successfully.', 'success');
 });
 
